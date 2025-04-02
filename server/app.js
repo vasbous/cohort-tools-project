@@ -39,6 +39,8 @@ app.get("/docs", (req, res) => {
   res.sendFile(__dirname + "/views/docs.html");
 });
 
+//ROUTES FOR COHORTS
+
 app.get("/api/cohorts", (req, res) => {
   Cohort.find({})
     .then((cohorts) => {
@@ -51,15 +53,157 @@ app.get("/api/cohorts", (req, res) => {
     });
 });
 
-app.get("/api/students", (req, res) => {
-  Student.find({})
-    .then((students) => {
-      console.log("Retrieved students ->", students);
-      res.json(students);
+// POST /api/cohorts - Creates a new cohort
+app.post("/api/cohorts", (req, res) => {
+  Cohort.create({
+    cohortSlug: req.body.cohortSlug,
+    cohortName: req.body.cohortName,
+    program: req.body.program,
+    format: req.body.format,
+    campus: req.body.campus,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    inProgress: req.body.inProgress,
+    programManager: req.body.programManager,
+    leadTeacher: req.body.leadTeacher,
+    totalHours: req.body.totalHours,
+  })
+    .then((createdCohort) => {
+      res.status(201).json(createdCohort);
     })
     .catch((error) => {
-      console.error("Error while retrieving students ->", error);
-      res.status(500).json({ error: "Failed to retrieve students" });
+      res.status(500).json({ error: "Failed to create new cohort" });
+    });
+});
+
+// GET /api/cohorts - Retrieves all of the cohorts in the database collection
+app.get("/api/cohorts", (req, res) => {
+  Cohort.find({})
+    .then((allCohorts) => {
+      res.status(200).json(allCohorts);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Error retrieving all recipes" });
+    });
+});
+// GET /api/cohorts/:cohortId - Retrieves a specific cohort by id
+app.get("/api/cohorts/:cohortId", (req, res) => {
+  Cohort.findById(req.params.cohortId)
+    .then((foundCohort) => {
+      res.status(200).json(foundCohort);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: "Troubles finding the Cohort" });
+    });
+});
+app.get("/api/cohorts/:cohortId", (req, res) => {
+  Cohort.findById(req.params.id)
+    .then((oneCohort) => {
+      res.status(200).json(oneCohort);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Error retrieving the specific cohort" });
+    });
+});
+// PUT /api/cohorts/:cohortId - Updates a specific cohort by id
+app.put("/api/cohorts/:cohortId", (req, res) => {
+  Cohort.findOneAndReplace(req.params.cohortId, req.body, { new: true })
+    .then((updatedCohort) => {
+      res.status(200).json(updatedCohort);
+    })
+    .catch((err) => {
+      res.status(500).json({ errorMessage: "updating cohort failed" });
+    });
+});
+
+// DELETE /api/cohorts/:cohortId - Deletes a specific cohort by id
+app.delete("/api/cohorts/:cohortId", (req, res) => {
+  Cohort.findOneAndDelete(req.params.cohortId);
+  then((deletedCohort) => {
+    res.status(204).json(deletedCohort);
+  }).catch((err) => {
+    res.status(500).json({ errorMessage: "Cohort couldn't be deleted" });
+  });
+});
+
+//ROUTES FOR STUDENTS
+
+//POST /api/students - Creates a new student
+app.post("/api/students", (req, res) => {
+  Student.create({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    phone: req.body.phone,
+    linkedinUrl: req.body.linkedinUrl,
+    lannguages: req.body.languages,
+    program: req.body.program,
+    background: req.body.background,
+    image: req.body.image,
+    cohort: req.body.cohort,
+    projects: req.body.projects,
+  })
+
+    .then((createdStudent) => {
+      res.status(201).json(createdStudent);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "error while creating Student" });
+    });
+});
+//GET /api/students - Retrieves all of the students in the database collection
+app.get("/api/students", (req, res) => {
+  Student.find({})
+    .then((allStudents) => {
+      res.status(200).json(allStudents);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Error retrieving all recipes" });
+    });
+});
+
+//GET /api/students/cohort/:cohortId - Retrieves all of the students for a
+app.get("/api/students/cohorts/:cohortId", (req, res) => {
+  Student.findById(req.params.id)
+    .populate("cohort")
+    .then((student) => {
+      res.status(201).json(student);
+    })
+    .catch((error) => {
+      res.status(500).json({ error: "Can't retrieve Student by Id" });
+    });
+});
+//GET /API/STUDENTS/:STUDENTID
+app.get("/api/student/:studentId", (req, res) => {
+  Student.findById(req.params.studentId)
+    .then((foundStudent) => {
+      res.status(200).json(foundStudent);
+    })
+    .catch((err) => {
+      res.status(500).json({ message: "Troubles finding the Student" });
+    });
+});
+
+//PUT /api/students/:studentId
+app.put("/api/students/:studentId", (req, res) => {
+  Student.findOneAndReplace(req.params.studentId, req.body, { new: true })
+    .then((updatedStudent) => {
+      res.status(200).json(updatedStudent);
+    })
+    .catch((err) => {
+      res.status(500).json({ errorMessage: "Student not updated" });
+    });
+});
+
+//DELETE/api/student/:studentId
+
+app.delete("/students/:studentid", (req, res) => {
+  Recipe.findByIdAndDelete(req.params.id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((error) => {
+      res.status(500).json({ message: "Error while deleting a student" });
     });
 });
 
