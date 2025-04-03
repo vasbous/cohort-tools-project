@@ -20,7 +20,7 @@ const studentSchema = new Schema({
     default: "",
   },
   languages: {
-    type: String,
+    type: [String],
     enum: [
       "English",
       "Spanish",
@@ -31,6 +31,7 @@ const studentSchema = new Schema({
       "Other",
     ],
   },
+
   program: {
     type: String,
     enum: ["Web Dev", "UX/UI", "Data Analytics", "Cybersecurity"],
